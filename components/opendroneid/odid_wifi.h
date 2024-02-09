@@ -12,6 +12,7 @@ gabriel.c.cox@intel.com
 
 #ifndef _ODID_WIFI_H_
 #define _ODID_WIFI_H_
+#include "opendroneid.h"
 
 /**
 * IEEE 802.11 structs to build management action frame
