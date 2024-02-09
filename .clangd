@@ -1,3 +1,4 @@
 # https://github.com/espressif/esp-idf/issues/6721
 CompileFlags:
+  Add: [-Wno-error=format]
   Remove: [-march=rv32imc_zicsr_zifencei, -fno-tree-switch-conversion, -mtext-section-literals, -mlongcalls, -fstrict-volatile-bitfields, -fno-shrink-wrap]
