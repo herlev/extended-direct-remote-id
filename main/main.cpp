@@ -109,6 +109,17 @@ void callback(void *buffer, wifi_promiscuous_pkt_type_t type) {
            location.AltitudeBaro);
   }
   printf("\n");
+
+  uint8_t buf[1000];
+  uint8_t mac[] = {0x02, 0x45, 0x6d, 0xff, 0xdd, 0xdd};
+  int len = odid_wifi_build_message_pack_beacon_frame(
+      &odid_msg.uas_data, (char *)mac, "RID", 3, 0x0064, odid_msg.msg_counter, buf, 1000);
+
+  if (len < 0) {
+    printf("ERROR: %d\n", len);
+    return;
+  }
+  ESP_ERROR_CHECK(esp_wifi_80211_tx((wifi_interface_t)0, buf, len, false));
 }
 
 extern "C" void app_main(void) {
@@ -132,7 +143,13 @@ extern "C" void app_main(void) {
   ESP_ERROR_CHECK(esp_wifi_set_channel(6, WIFI_SECOND_CHAN_NONE));
 
   while (true) {
-    printf("Hello world\n");
+    // ODID_UAS_Data data;
+    // odid_initUasData(&data);
+    // data.BasicIDValid[0] = true;
+    // data.BasicID[0].IDType = ODID_IDTYPE_SERIAL_NUMBER;
+    // data.BasicID[0].UAType = ODID_UATYPE_ROCKET;
+    // char uasid[] = "AirPlate1696F1234567";
+    // strcpy(data.BasicID[0].UASID, uasid);
     vTaskDelay(1000 / portTICK_PERIOD_MS);
   }
 }
