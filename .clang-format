@@ -1,0 +1,9 @@
+﻿# https://zed0.co.uk/clang-format-configurator/
+---
+BasedOnStyle: LLVM
+AllowShortFunctionsOnASingleLine: None
+AlwaysBreakTemplateDeclarations: 'true'
+ColumnLimit: '120'
+IndentWidth: '2'
+
+...
