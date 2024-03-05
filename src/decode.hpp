@@ -37,8 +37,11 @@ static std::optional<ODID_msg> decode_ODID_payload(ByteBuffer &payload) {
   ODID_UAS_Data UAS_data;
   uint8_t msg_counter = payload[0];
   ByteBuffer msg_pack = payload.sub_buffer(1);
-  if (odid_message_process_pack(&UAS_data, msg_pack.start(), msg_pack.length()) < 0) {
+  auto ret = odid_message_process_pack(&UAS_data, msg_pack.start(), msg_pack.length());
+   if (ret < 0) {
+    // printf("Error from decode function: %d\n",ret);
     return {};
+
   }
   return ODID_msg{.msg_counter = msg_counter, .uas_data = UAS_data};
 }
