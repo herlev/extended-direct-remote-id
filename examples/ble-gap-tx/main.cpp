@@ -16,14 +16,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #define LOG_TAG "BLE-gap-tx"
 uint8_t addr_coded[6] = {0xc0, 0xde, 0x52, 0x00, 0x00, 0x04};
 static SemaphoreHandle_t semaphore = NULL;
 static esp_ble_gap_ext_adv_params_t ext_adv_params_coded = {
     .type = ESP_BLE_GAP_SET_EXT_ADV_PROP_NONCONN_NONSCANNABLE_UNDIRECTED, // set to unicast advertising
-    .interval_min = 160, // T = 0.625 msec * N, where N is interval value. Range: 0x0020 to 0x4000
-    .interval_max = 160,
+    .interval_min = 1600, // T = 0.625 msec * N, where N is interval value. Range: 0x0020 to 0x4000
+    .interval_max = 1600, // 160 = 10 Hz, 1600 = 1 Hz
     .channel_map = ADV_CHNL_ALL,
     .own_addr_type = BLE_ADDR_TYPE_RANDOM,
     .filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_WLST, // we want unicast non-connectable transmission
@@ -114,6 +113,10 @@ extern "C" void app_main(void) {
   data.BasicID[0].UAType = ODID_UATYPE_ROCKET;
   char uasid[] = "EDRI";
   strcpy(data.BasicID[0].UASID, uasid);
+  data.LocationValid = 1;
+  data.SystemValid = 1;
+  data.OperatorIDValid = 1;
+  data.SelfIDValid = 1;
   int len = odid_message_build_pack(&data, &buf[bt5_header_len], 1000 - bt5_header_len);
   buf[msg_counter_idx] = 0; // msg counter
   buf[0] = len + bt5_header_len - 1;
