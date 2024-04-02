@@ -5,5 +5,7 @@ AllowShortFunctionsOnASingleLine: None
 AlwaysBreakTemplateDeclarations: 'true'
 ColumnLimit: '120'
 IndentWidth: '2'
+AllowShortCaseLabelsOnASingleLine: 'true'
+IndentCaseLabels: 'true'
 
 ...
