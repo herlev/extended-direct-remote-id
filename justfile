@@ -8,6 +8,9 @@ assert_port_set:
 build example="":
 	idf.py -DEXAMPLE={{example}} build
 
+size example="":
+	idf.py -DEXAMPLE={{example}} size
+
 flash example="": assert_port_set
 	idf.py -DEXAMPLE={{example}} -p {{port}} flash
 
