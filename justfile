@@ -12,7 +12,7 @@ flash example="": assert_port_set
 	idf.py -DEXAMPLE={{example}} -p {{port}} flash
 
 monitor: assert_port_set
-	idf.py monitor -p {{port}}
+	idf.py monitor -p {{port}} --no-reset
 
 # flash and monitor
 fm example="": (flash example) monitor
