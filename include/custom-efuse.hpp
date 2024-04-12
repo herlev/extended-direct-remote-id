@@ -1,6 +1,9 @@
 #pragma once
 #include "esp_efuse.h"
 #include "esp_efuse_table.h"
+/**
+ * @brief Burn the efuse for uart print control to disable logging. The result is PERMANENT.
+ */
 void disable_UART_boot_logging() {
   const uint8_t uart_disabled_bitfield_value = 0b11;
   uint8_t bitfield_value;
