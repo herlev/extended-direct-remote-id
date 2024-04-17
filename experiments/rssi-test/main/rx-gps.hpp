@@ -18,22 +18,25 @@
 struct RssiTableElem {
   uint8_t rssi = 0;
   uint64_t timestamp = 0;
+  double latitude = 0;
+  double longitude = 0;
+  float height = 0;
 };
 uint32_t num_table_elem = 0;
-const uint32_t max_table_elem = 12000;
+const uint32_t max_table_elem = 2500;
 static RssiTableElem rssi_table[max_table_elem] = {};
 void printRssiTable() {
   printf("\nRssi table with %lu samples\n", num_table_elem);
 
-  printf("RSSI, timestamp\n\n");
+  printf("RSSI, timestamp, lat, lon, height AGL\n\n");
   for (uint32_t i = 0; i < num_table_elem; i++) {
     auto &e = rssi_table[i];
-    printf("-%u\t%llu\t\n", e.rssi, e.timestamp);
+    printf("-%u\t%llu\t%f\t%f\t%f\n", e.rssi, e.timestamp, e.latitude, e.longitude, e.height);
   }
 }
 
 void log_payload(ByteBuffer buffer, signed rssi) {
-  uint8_t tx_mac[] = {0x02, 0x45, 0x6d, 0xff, 0xdd, 0xdc};
+  uint8_t tx_mac[] = {0x2a, 0x98, 0xb7, 0xed, 0x8e, 0xe0};
   auto frame = (ieee80211_mgmt *)buffer.start();
   if (!is_beacon_frame(*frame)) {
     return;
@@ -70,9 +73,16 @@ void log_payload(ByteBuffer buffer, signed rssi) {
   if (num_table_elem >= max_table_elem) {
     return;
   }
+
+  if (!odid_msg.uas_data.LocationValid) {
+    return;
+  }
   auto &rssi_table_elem = rssi_table[num_table_elem++];
   rssi_table_elem.timestamp = timestamp;
   rssi_table_elem.rssi = (uint8_t)-1 * rssi;
+  rssi_table_elem.height = odid_msg.uas_data.Location.Height;
+  rssi_table_elem.latitude = odid_msg.uas_data.Location.Latitude;
+  rssi_table_elem.longitude = odid_msg.uas_data.Location.Longitude;
   return;
 }
 

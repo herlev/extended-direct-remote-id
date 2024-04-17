@@ -1,6 +1,3 @@
-#define RX
-#ifdef RX
-#include "rx.hpp"
-#else
-#include "tx.hpp"
-#endif
+// #include "rx.hpp"
+#include "rx-gps.hpp"
+// #include "tx.hpp"

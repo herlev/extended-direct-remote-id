@@ -3,7 +3,7 @@ port := `./get-ttyacm-port.sh || true`
 
 [private]
 assert_port_set:
-	@[[ -n "{{port}}" ]] || exit 1 
+	@[ -n "{{port}}" ] || exit 1 
 
 build example="":
 	idf.py -DEXAMPLE={{example}} build
