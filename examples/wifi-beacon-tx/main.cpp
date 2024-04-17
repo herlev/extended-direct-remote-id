@@ -30,6 +30,7 @@ extern "C" void app_main(void) {
   ESP_ERROR_CHECK(esp_wifi_stop());
 
   ESP_ERROR_CHECK(esp_wifi_config_80211_tx_rate(WIFI_IF_STA, WIFI_PHY_RATE_1M_L));
+  ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
   ESP_ERROR_CHECK(esp_wifi_start());
   ESP_ERROR_CHECK(esp_wifi_set_channel(6, WIFI_SECOND_CHAN_NONE));
 
@@ -52,7 +53,7 @@ extern "C" void app_main(void) {
       printf("ERROR: %d\n", len);
       continue;
     }
-    ESP_ERROR_CHECK(esp_wifi_80211_tx((wifi_interface_t)0, buf, len, false));
+    ESP_ERROR_CHECK(esp_wifi_80211_tx((wifi_interface_t)WIFI_IF_STA, buf, len, false));
 
     printf("hello world\n");
     vTaskDelay(1000 / portTICK_PERIOD_MS);
