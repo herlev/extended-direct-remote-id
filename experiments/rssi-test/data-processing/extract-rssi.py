@@ -59,3 +59,5 @@ for i in range(len(receiver_readings['A'])):
       rssi = common_receiver_readings[receiver][i][0]
       f.write(f",{rssi}")
     f.write("\n")
+  f.close()
+
