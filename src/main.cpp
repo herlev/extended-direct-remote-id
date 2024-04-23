@@ -13,16 +13,44 @@
 #define uas_id "bobby"
 uint8_t rx_data[MAVLINK_MAX_PACKET_LEN] = {};
 uint8_t m_buffer[MAVLINK_MAX_PACKET_LEN] = {};
+uint8_t mac[] = {0x02, 0x45, 0x6d, 0xff, 0xdd, 0xdc};
+#include "retransmitter.hpp"
 
 static uint8_t send_buffer_self[1000];
+
+void print_scan_result(ScanResult &scan_result) {
+    auto &odid_msg = scan_result.odid_msg;
+    auto &frame = scan_result.management_frame;
+    auto &beacon_frame = scan_result.beacon_frame;
+    printf("%u ", odid_msg.msg_counter);
+    printf("%02X:%02X:%02X:%02X:%02X:%02X ", frame.sa[0], frame.sa[1],
+           frame.sa[2], frame.sa[3], frame.sa[4], frame.sa[5]);
+    printf("%016llx ", beacon_frame.timestamp);
+    if (odid_msg.uas_data
+            .BasicIDValid[0]) { // TODO: maybe loop through all values?
+      printf("%s ", odid_msg.uas_data.BasicID[0].UASID);
+    }
+    if (odid_msg.uas_data.LocationValid) {
+      auto &location = odid_msg.uas_data.Location;
+      printf("lat: %f, lon: %f, alt: %f", location.Latitude,
+      location.Longitude,
+             location.AltitudeBaro);
+    }
+    printf("\n");
+  
+}
+
 extern "C" void app_main(void) {
   uint8_t msg_counter = 0;
-  uint8_t mac[] = {0x02, 0x45, 0x6d, 0xff, 0xdd, 0xdc};
   initialize();
   uart_port_t uart_port = UART_NUM_1;
   initialize_uart(uart_port, UART_TX, UART_RX, baud);
 
-  scan_callback = [](ScanResult scan_result) { printf("count: %u\n", scan_result.odid_msg.msg_counter); };
+  scan_callback = [](ScanResult scan_result) {
+    retransmit(scan_result.odid_msg);
+    print_scan_result(scan_result);
+  };
+
   uint32_t t_prev = (uint32_t)esp_timer_get_time() / 1000;
   uint32_t t_now = t_prev;
   while (true) {
