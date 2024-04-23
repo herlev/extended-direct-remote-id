@@ -35,10 +35,11 @@ std::optional<mavlink_global_position_int_t> receive_mavlink_gps(uart_port_t uar
           mavlink_msg_global_position_int_decode(&msg, &mavlink_gps_msg);
           return mavlink_gps_msg;
         }
-        if (msg.msgid == MAVLINK_MSG_ID_ATTITUDE) {
-          mavlink_msg_attitude_decode(&msg, &attitude);
-          printf("Roll: %f Pitch: %f, Yaw: %f\n", attitude.roll, attitude.pitch, attitude.yaw);
-        }
+        // Useful for debugging when indoors and no GPS fix 
+        // if (msg.msgid == MAVLINK_MSG_ID_ATTITUDE) { 
+        //   mavlink_msg_attitude_decode(&msg, &attitude);
+        //   printf("Roll: %f Pitch: %f, Yaw: %f\n", attitude.roll, attitude.pitch, attitude.yaw);
+        // }
       }
     }
   }
