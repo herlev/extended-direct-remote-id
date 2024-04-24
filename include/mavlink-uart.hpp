@@ -1,8 +1,8 @@
 #include "all/mavlink.h"
 #include "common/mavlink_msg_command_long.h"
 #include "common/mavlink_msg_global_position_int.h"
-#include "driver/uart.h"
 #include "driver/gpio.h"
+#include "driver/uart.h"
 #include <optional>
 void initialize_uart(uart_port_t uart_num, int uart_tx_pin, int uart_rx_pin, int baud) {
   uart_config_t uart_config = {
@@ -19,7 +19,7 @@ void initialize_uart(uart_port_t uart_num, int uart_tx_pin, int uart_rx_pin, int
   ESP_ERROR_CHECK(uart_driver_install(UART_NUM_1, uart_buffer_size, uart_buffer_size, 0, NULL, 0));
 }
 
-std::optional<mavlink_global_position_int_t> receive_mavlink_gps(uart_port_t uart_port,uint8_t* rx_data_buffer) {
+std::optional<mavlink_global_position_int_t> receive_mavlink_gps(uart_port_t uart_port, uint8_t *rx_data_buffer) {
   mavlink_global_position_int_t mavlink_gps_msg;
   size_t length = 0;
   mavlink_message_t msg;
@@ -35,8 +35,8 @@ std::optional<mavlink_global_position_int_t> receive_mavlink_gps(uart_port_t uar
           mavlink_msg_global_position_int_decode(&msg, &mavlink_gps_msg);
           return mavlink_gps_msg;
         }
-        // Useful for debugging when indoors and no GPS fix 
-        // if (msg.msgid == MAVLINK_MSG_ID_ATTITUDE) { 
+        // Useful for debugging when indoors and no GPS fix
+        // if (msg.msgid == MAVLINK_MSG_ID_ATTITUDE) {
         //   mavlink_msg_attitude_decode(&msg, &attitude);
         //   printf("Roll: %f Pitch: %f, Yaw: %f\n", attitude.roll, attitude.pitch, attitude.yaw);
         // }
@@ -45,8 +45,8 @@ std::optional<mavlink_global_position_int_t> receive_mavlink_gps(uart_port_t uar
   }
   return {};
 }
-void initialize_data_stream(uart_port_t uart_port, uint16_t message_id, uint32_t message_inteval_us,uint8_t* mavlink_buffer) {
-  vTaskDelay(500 / portTICK_PERIOD_MS); // Delay because of boot UART messages
+void initialize_data_stream(uart_port_t uart_port, uint16_t message_id, uint32_t message_inteval_us,
+                            uint8_t *mavlink_buffer) {
   uint8_t system_id = 1;
   uint8_t component_id = 156;
   mavlink_message_t msg;
@@ -56,4 +56,30 @@ void initialize_data_stream(uart_port_t uart_port, uint16_t message_id, uint32_t
   uart_write_bytes(uart_port, mavlink_buffer, l);
   ESP_ERROR_CHECK(uart_wait_tx_done(uart_port, 100));
   return;
+}
+
+void update_dri_mavlink(uart_port_t uart_port, uint8_t *uart_rx_buffer, uint8_t *wifi_tx_buffer, char *uas_id,
+                        char *mac, uint8_t msg_counter) {
+  auto gps_msg_opt = receive_mavlink_gps(uart_port, uart_rx_buffer);
+  if (!gps_msg_opt.has_value()) {
+    return;
+  }
+  auto gps_msg = gps_msg_opt.value();
+  ODID_UAS_Data uas_data;
+  odid_initUasData(&uas_data);
+  uas_data.LocationValid = 1;
+  uas_data.BasicIDValid[0] = 1;
+  uas_data.BasicID[0].IDType = ODID_IDTYPE_SERIAL_NUMBER;
+  uas_data.BasicID[0].UAType = ODID_UATYPE_HELICOPTER_OR_MULTIROTOR;
+  strncpy(uas_data.BasicID[0].UASID, uas_id, ODID_ID_SIZE);
+  uas_data.Location.AltitudeGeo = gps_msg.alt;
+  uas_data.Location.Latitude = gps_msg.lat;
+  uas_data.Location.Longitude = gps_msg.lon;
+  int len = odid_wifi_build_message_pack_beacon_frame(&uas_data, (char *)mac, "RID", 3, 0x0064, msg_counter,
+                                                      wifi_tx_buffer, sizeof(wifi_tx_buffer));
+  if (len < 0) {
+    printf("Error building odid message pack%d\n", len);
+    return;
+    ESP_ERROR_CHECK(esp_wifi_80211_tx(WIFI_IF_STA, wifi_tx_buffer, len, false));
+  }
 }

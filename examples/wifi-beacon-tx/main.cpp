@@ -5,7 +5,24 @@
 #include "opendroneid.h"
 #include "utils.hpp"
 #include <stdio.h>
-
+ODID_UAS_Data get_odid_data() {
+  ODID_UAS_Data data;
+  odid_initUasData(&data);
+  data.BasicIDValid[0] = true;
+  data.BasicID[0].IDType = ODID_IDTYPE_SERIAL_NUMBER;
+  data.BasicID[0].UAType = ODID_UATYPE_HELICOPTER_OR_MULTIROTOR;
+  char uasid[] = "EDRI";
+  strcpy(data.BasicID[0].UASID, uasid);
+  data.LocationValid = 1;
+  data.Location.HeightType = ODID_HEIGHT_REF_OVER_GROUND;
+  data.Location.AltitudeGeo = 25.0;
+  data.Location.Latitude = 55;
+  data.Location.Longitude = 10;
+  data.SystemValid = 1;
+  data.OperatorIDValid = 1;
+  data.SelfIDValid = 1;
+  return data;
+}
 extern "C" void app_main(void) {
   esp_err_t ret = nvs_flash_init();
   if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
@@ -38,17 +55,17 @@ extern "C" void app_main(void) {
 
     uint8_t mac[] = {0x02, 0x45, 0x6d, 0xff, 0xdd, 0xdc};
 
-    ODID_UAS_Data data;
-    odid_initUasData(&data);
-    data.BasicIDValid[0] = true;
-    data.BasicID[0].IDType = ODID_IDTYPE_SERIAL_NUMBER;
-    data.BasicID[0].UAType = ODID_UATYPE_ROCKET;
-    char uasid[] = "AirPlate1696F1234567";
-    strcpy(data.BasicID[0].UASID, uasid);
+    // ODID_UAS_Data data;
+    auto data = get_odid_data();
+    // odid_initUasData(&data);
+    // data.BasicIDValid[0] = true;
+    // data.BasicID[0].IDType = ODID_IDTYPE_SERIAL_NUMBER;
+    // data.BasicID[0].UAType = ODID_UATYPE_ROCKET;
+    // char uasid[] = "AirPlate1696F1234567";
+    // strcpy(data.BasicID[0].UASID, uasid);
 
     uint8_t buf[1000];
-    int len = odid_wifi_build_message_pack_beacon_frame(
-        &data, (char *)mac, "RID", 3, 0x0064, 0, buf, 1000);
+    int len = odid_wifi_build_message_pack_beacon_frame(&data, (char *)mac, "RID", 3, 0x0064, 0, buf, 1000);
     if (len < 0) {
       printf("ERROR: %d\n", len);
       continue;
