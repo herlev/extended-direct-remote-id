@@ -39,14 +39,17 @@ void inject_adsb(ODID_UAS_Data uas_data, uart_port_t uart_num) {
     auto lon = encodeLatLon(uas_data.Location.Longitude);
     auto heading = (uint16_t)(uas_data.Location.Direction * 100);
     auto altitude = (int32_t)(uas_data.Location.AltitudeGeo * 1000);
-    auto callsign = uas_data.BasicID->UASID;
-    auto emitter_type = ADSB_EMITTER_TYPE_NO_INFO;
+    char callsign[9];
+    strncpy(callsign,uas_data.BasicID[0].UASID,8); // Callsign is 8+null character in size.
+    callsign[8] = '\0';
+    // auto emitter_type = ADSB_EMITTER_TYPE_NO_INFO;
+    auto emitter_type = ADSB_EMITTER_TYPE_UAV;
     auto horizontal_veocity = (uint16_t)(uas_data.Location.SpeedHorizontal * 100);
     auto vertical_veocity = (int16_t)(uas_data.Location.SpeedVertical * 100);
     uint32_t icao = FNV1_a_hash((uint8_t *)callsign, strlen(callsign));
-    if (uas_data.BasicID->UAType == ODID_UATYPE_HELICOPTER_OR_MULTIROTOR) {
-      emitter_type = ADSB_EMITTER_TYPE_UAV;
-    }
+    // if (uas_data.BasicID->UAType == ODID_UATYPE_HELICOPTER_OR_MULTIROTOR) {
+    //   emitter_type = ADSB_EMITTER_TYPE_UAV;
+    // }
     send_adsb(uart_num, 1, 156, 1, callsign, icao, lat, lon, emitter_type, altitude, heading, horizontal_veocity,
               vertical_veocity);
   }

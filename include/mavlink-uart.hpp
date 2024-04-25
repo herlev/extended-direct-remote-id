@@ -33,6 +33,7 @@ std::optional<mavlink_global_position_int_t> receive_mavlink_gps(uart_port_t uar
       if (mavlink_parse_char(0, byte, &msg, &status)) {
         if (msg.msgid == MAVLINK_MSG_ID_GLOBAL_POSITION_INT) {
           mavlink_msg_global_position_int_decode(&msg, &mavlink_gps_msg);
+          // printf("GPS values. Alt: %lu, Lat: %lu, Lon: %lu\n", mavlink_gps_msg.alt, mavlink_gps_msg.lat, mavlink_gps_msg.lon);
           return mavlink_gps_msg;
         }
         // Useful for debugging when indoors and no GPS fix
@@ -72,14 +73,16 @@ void update_dri_mavlink(uart_port_t uart_port, uint8_t *uart_rx_buffer, uint8_t 
   uas_data.BasicID[0].IDType = ODID_IDTYPE_SERIAL_NUMBER;
   uas_data.BasicID[0].UAType = ODID_UATYPE_HELICOPTER_OR_MULTIROTOR;
   strncpy(uas_data.BasicID[0].UASID, uas_id, ODID_ID_SIZE);
-  uas_data.Location.AltitudeGeo = gps_msg.alt;
-  uas_data.Location.Latitude = gps_msg.lat;
-  uas_data.Location.Longitude = gps_msg.lon;
+  uas_data.Location.AltitudeGeo = ((float)gps_msg.alt)/1000;
+  uas_data.Location.Latitude = ((double)gps_msg.lat)/1e7;
+  uas_data.Location.Longitude = ((double)gps_msg.lon)/1e7;
+  uas_data.Location.SpeedVertical = ((float)gps_msg.vz)/100;
+  uas_data.Location.SpeedHorizontal
   int len = odid_wifi_build_message_pack_beacon_frame(&uas_data, (char *)mac, "RID", 3, 0x0064, msg_counter,
-                                                      wifi_tx_buffer, sizeof(wifi_tx_buffer));
+                                                      wifi_tx_buffer, 1000);
   if (len < 0) {
     printf("Error building odid message pack%d\n", len);
     return;
-    ESP_ERROR_CHECK(esp_wifi_80211_tx(WIFI_IF_STA, wifi_tx_buffer, len, false));
   }
+  ESP_ERROR_CHECK(esp_wifi_80211_tx(WIFI_IF_STA, wifi_tx_buffer, len, false));
 }
