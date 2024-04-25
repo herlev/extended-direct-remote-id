@@ -77,7 +77,9 @@ void update_dri_mavlink(uart_port_t uart_port, uint8_t *uart_rx_buffer, uint8_t 
   uas_data.Location.Latitude = ((double)gps_msg.lat)/1e7;
   uas_data.Location.Longitude = ((double)gps_msg.lon)/1e7;
   uas_data.Location.SpeedVertical = ((float)gps_msg.vz)/100;
-  uas_data.Location.SpeedHorizontal
+  auto temp_vx = ((float)gps_msg.vx)/100;
+  auto temp_vy = ((float)gps_msg.vx)/100;
+  uas_data.Location.SpeedHorizontal = sqrt(pow(temp_vx,2)+pow(temp_vy,2));
   int len = odid_wifi_build_message_pack_beacon_frame(&uas_data, (char *)mac, "RID", 3, 0x0064, msg_counter,
                                                       wifi_tx_buffer, 1000);
   if (len < 0) {
