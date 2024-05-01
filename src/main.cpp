@@ -52,7 +52,7 @@ extern "C" void app_main(void) {
   scan_callback = [](ScanResult scan_result) {
     retransmit(scan_result, mac);
     print_scan_result(scan_result);
-    inject_adsb(scan_result.odid_msg.uas_data, uart_port);
+    inject_adsb(scan_result.odid_msg.uas_data, uart_port,uas_id);
   };
 
   uint32_t t_prev = (uint32_t)esp_timer_get_time() / 1000;

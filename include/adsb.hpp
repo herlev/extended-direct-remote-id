@@ -31,16 +31,20 @@ void send_adsb(uart_port_t uart_num, uint8_t system_id, uint8_t component_id, ui
                                           0b0010011111, 6969);
   int l = mavlink_msg_to_send_buffer(buf, &msg);
   uart_write_bytes(uart_num, buf, l);
+  return;
 }
 
-void inject_adsb(ODID_UAS_Data uas_data, uart_port_t uart_num) {
+void inject_adsb(ODID_UAS_Data uas_data, uart_port_t uart_num, char *own_UAS_ID) {
+  if (strcmp(uas_data.BasicID[0].UASID, own_UAS_ID) == 0) {
+    return;
+  }
   if (uas_data.LocationValid && uas_data.BasicIDValid[0]) {
     auto lat = encodeLatLon(uas_data.Location.Latitude);
     auto lon = encodeLatLon(uas_data.Location.Longitude);
     auto heading = (uint16_t)(uas_data.Location.Direction * 100);
     auto altitude = (int32_t)(uas_data.Location.AltitudeGeo * 1000);
     char callsign[9];
-    strncpy(callsign,uas_data.BasicID[0].UASID,8); // Callsign is 8+null character in size.
+    strncpy(callsign, uas_data.BasicID[0].UASID, 8); // Callsign is 8+null character in size.
     callsign[8] = '\0';
     // auto emitter_type = ADSB_EMITTER_TYPE_NO_INFO;
     auto emitter_type = ADSB_EMITTER_TYPE_UAV;
@@ -53,4 +57,5 @@ void inject_adsb(ODID_UAS_Data uas_data, uart_port_t uart_num) {
     send_adsb(uart_num, 1, 156, 1, callsign, icao, lat, lon, emitter_type, altitude, heading, horizontal_veocity,
               vertical_veocity);
   }
+  return;
 }
