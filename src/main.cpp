@@ -12,10 +12,10 @@
 #define UART_TX GPIO_NUM_21
 #define UART_RX GPIO_NUM_20
 #define baud 2000000
-#define uas_id "EDRI-Relay"
+#define uas_id "EDRI-Drone1"
 uint8_t uart_rx_buffer[MAVLINK_MAX_PACKET_LEN] = {};
 uint8_t m_buffer[MAVLINK_MAX_PACKET_LEN] = {};
-uint8_t mac[] = {};
+uint8_t mac[6] = {};
 #include "retransmitter.hpp"
 
 static uint8_t send_buffer_self[1000];
