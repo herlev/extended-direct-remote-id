@@ -12,7 +12,7 @@
 #define UART_TX GPIO_NUM_21
 #define UART_RX GPIO_NUM_20
 #define baud 2000000
-#define uas_id "EDRI-Drone1"
+#define uas_id "EDRI-D1"
 uint8_t uart_rx_buffer[MAVLINK_MAX_PACKET_LEN] = {};
 uint8_t m_buffer[MAVLINK_MAX_PACKET_LEN] = {};
 uint8_t mac[6] = {};
@@ -52,7 +52,7 @@ extern "C" void app_main(void) {
   scan_callback = [](ScanResult scan_result) {
     retransmit(scan_result, mac);
     print_scan_result(scan_result);
-    inject_adsb(scan_result.odid_msg.uas_data, uart_port,uas_id);
+    inject_adsb(scan_result.odid_msg.uas_data, uart_port, uas_id);
   };
 
   uint32_t t_prev = (uint32_t)esp_timer_get_time() / 1000;
@@ -63,8 +63,7 @@ extern "C" void app_main(void) {
       t_prev = t_now;
       initialize_data_stream(uart_port, MAVLINK_MSG_ID_GLOBAL_POSITION_INT, 100000, m_buffer);
     }
-    update_dri_mavlink(uart_port, uart_rx_buffer, send_buffer_self, uas_id, (char *)mac, msg_counter++);
-
+    update_dri_mavlink(uart_port, uart_rx_buffer, send_buffer_self, uas_id, (char *)mac, msg_counter);
     vTaskDelay(1);
   }
 }

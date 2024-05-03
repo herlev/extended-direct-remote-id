@@ -34,7 +34,7 @@ std::optional<mavlink_global_position_int_t> receive_mavlink_gps(uart_port_t uar
         if (msg.msgid == MAVLINK_MSG_ID_GLOBAL_POSITION_INT) {
           mavlink_msg_global_position_int_decode(&msg, &mavlink_gps_msg);
           // printf("GPS values. Alt: %lu, Lat: %lu, Lon: %lu\n", mavlink_gps_msg.alt, mavlink_gps_msg.lat,
-          // mavlink_gps_msg.lon);
+          //        mavlink_gps_msg.lon);
           return mavlink_gps_msg;
         }
         // Useful for debugging when indoors and no GPS fix
@@ -49,6 +49,7 @@ std::optional<mavlink_global_position_int_t> receive_mavlink_gps(uart_port_t uar
 }
 void initialize_data_stream(uart_port_t uart_port, uint16_t message_id, uint32_t message_inteval_us,
                             uint8_t *mavlink_buffer) {
+  // printf("requesting gps data stream\n");
   uint8_t system_id = 1;
   uint8_t component_id = 156;
   mavlink_message_t msg;
@@ -61,11 +62,12 @@ void initialize_data_stream(uart_port_t uart_port, uint16_t message_id, uint32_t
 }
 
 void update_dri_mavlink(uart_port_t uart_port, uint8_t *uart_rx_buffer, uint8_t *wifi_tx_buffer, char *uas_id,
-                        char *mac, uint8_t msg_counter) {
+                        char *mac, uint8_t &msg_counter) {
   auto gps_msg_opt = receive_mavlink_gps(uart_port, uart_rx_buffer);
   if (!gps_msg_opt.has_value()) {
     return;
   }
+  msg_counter++;
   auto gps_msg = gps_msg_opt.value();
   ODID_UAS_Data uas_data;
   odid_initUasData(&uas_data);
