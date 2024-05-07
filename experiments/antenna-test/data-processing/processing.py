@@ -4,14 +4,14 @@ import json
 num_skip = 13
 
 # For the FPC antenna:
-folder_normal = "../data/Flat/Normalmount/flat"
-folder_rotated = "../data/Flat/Rotatedmount/flat"
-output_file = "../data/FPC.json"
+# folder_normal = "../data/Flat/Normalmount/flat"
+# folder_rotated = "../data/Flat/Rotatedmount/flat"
+# output_file = "../data/FPC.json"
 
 # For the whip antenna:
-# folder_normal = "../data/Pointy/Normalmount/pointy"
-# folder_rotated = "../data/Pointy/Rotatedmount/pointy"
-# output_file = "../data/Whip.json"
+folder_normal = "../data/Pointy/Normalmount/pointy"
+folder_rotated = "../data/Pointy/Rotatedmount/pointy"
+output_file = "../data/Whip.json"
 
 
 folders = [folder_normal,folder_rotated]
@@ -35,6 +35,9 @@ for k in range(len(folders)):
                 mean_list.append(np.mean(rssi_list))
                 std_list.append(np.std(rssi_list))
                 rssi_list = []
+        if(k == 1):
+            mean_list.reverse()
+            std_list.reverse()
         ml[36*k:36*(k+1),l] = mean_list
         sl[36*k:36*(k+1),l] = std_list
         mean_list = []
