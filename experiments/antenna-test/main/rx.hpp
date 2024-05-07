@@ -123,7 +123,7 @@ extern "C" void app_main(void) {
   initialize();
   example_ledc_init();
   uint8_t angle_stepsize = 5;
-  uint16_t receive_amount = 100;
+  uint16_t receive_amount = 200;
   uint32_t timer_val = 0;
   float duty = 0.0;
 
@@ -131,7 +131,8 @@ extern "C" void app_main(void) {
   timer_val = calculate_duty(duty);
   ESP_ERROR_CHECK(ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, timer_val));
   ESP_ERROR_CHECK(ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0));
-  vTaskDelay(1000 / portTICK_PERIOD_MS);
+  vTaskDelay(5000 / portTICK_PERIOD_MS);
+
   for (uint8_t i = 0; i <= 180; i += angle_stepsize) {
     duty = angle_to_duty(i);
     timer_val = calculate_duty(duty);
