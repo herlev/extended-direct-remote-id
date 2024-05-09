@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/_stdint.h>
+#define airplate_id "ARPLF"
 struct RssiTableElem {
   uint8_t rssi = 0;
   uint64_t timestamp = 0;
@@ -36,9 +37,6 @@ void log_payload(ByteBuffer buffer, signed rssi) {
   uint8_t tx_mac[] = {0x02, 0x45, 0x6d, 0xff, 0xdd, 0xdc};
   auto frame = (ieee80211_mgmt *)buffer.start();
   if (!is_beacon_frame(*frame)) {
-    return;
-  }
-  if (!c_array_equal(frame->sa, tx_mac, 6)) {
     return;
   }
 
@@ -68,6 +66,14 @@ void log_payload(ByteBuffer buffer, signed rssi) {
     return;
   }
   if (num_table_elem >= max_table_elem) {
+    return;
+  }
+  bool is_airplate_valid =
+      (strncmp(odid_msg.uas_data.BasicID[0].UASID, airplate_id, 5) == 0 && odid_msg.uas_data.Location.Latitude >= 0.01);
+  bool is_transmitter = c_array_equal(frame->sa, tx_mac, 6);
+  // Check if Airplate device on UASID. Make sure that latitude is not 0, indicating missing GPS fix. If not airplate
+  // check on correct sender MAC
+  if (!is_airplate_valid && !is_transmitter) {
     return;
   }
   auto &rssi_table_elem = rssi_table[num_table_elem++];
