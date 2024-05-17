@@ -4,13 +4,13 @@ import json
 num_skip = 13
 
 # For the FPC antenna:
-# folder_normal = "../data/Flat/Normalmount/flat"
-# folder_rotated = "../data/Flat/Rotatedmount/flat"
+# folder_normal = "../data/FPC/Normalmount/FPC"
+# folder_rotated = "../data/FPC/Rotatedmount/FPC"
 # output_file = "../data/FPC.json"
 
 # For the whip antenna:
-folder_normal = "../data/Pointy/Normalmount/pointy"
-folder_rotated = "../data/Pointy/Rotatedmount/pointy"
+folder_normal = "../data/Whip/Normalmount/whip"
+folder_rotated = "../data/Whip/Rotatedmount/whip"
 output_file = "../data/Whip.json"
 
 
