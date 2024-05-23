@@ -37,38 +37,25 @@ extern "C" void app_main(void) {
 
   wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
   ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-  ESP_ERROR_CHECK(esp_wifi_config_80211_tx_rate(WIFI_IF_STA, WIFI_PHY_RATE_24M));
-  ESP_ERROR_CHECK(esp_wifi_start());
-  ESP_ERROR_CHECK(esp_wifi_set_channel(6, WIFI_SECOND_CHAN_NONE));
-  ESP_ERROR_CHECK(esp_wifi_stop());
-
-  ESP_ERROR_CHECK(esp_wifi_config_80211_tx_rate(WIFI_IF_STA, WIFI_PHY_RATE_54M));
-  ESP_ERROR_CHECK(esp_wifi_start());
-  ESP_ERROR_CHECK(esp_wifi_set_channel(6, WIFI_SECOND_CHAN_NONE));
-  ESP_ERROR_CHECK(esp_wifi_stop());
-
   ESP_ERROR_CHECK(esp_wifi_config_80211_tx_rate(WIFI_IF_STA, WIFI_PHY_RATE_1M_L));
   ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
   ESP_ERROR_CHECK(esp_wifi_start());
   ESP_ERROR_CHECK(esp_wifi_set_channel(6, WIFI_SECOND_CHAN_NONE));
 
   uint8_t mac[] = {0x02, 0x45, 0x6d, 0xff, 0xdd, 0xdc};
-  esp_read_mac(mac, ESP_MAC_WIFI_STA);
+  //esp_read_mac(mac, ESP_MAC_WIFI_STA); // Read the ESP32-C3's mac address.
   uint8_t count = 0;
   while (true) {
-
-
-    auto data = get_odid_data();
+    auto data = get_odid_data(); // Initialize ODID data
 
     uint8_t buf[1000];
-    int len = odid_wifi_build_message_pack_beacon_frame(&data, (char *)mac, "RID", 3, 0x0064, count++, buf, 1000);
+    int len = odid_wifi_build_message_pack_beacon_frame(&data, (char *)mac, "RID", 3, 0x0064, count++, buf, 1000); // Encode beacon message
     if (len < 0) {
       printf("ERROR: %d\n", len);
       continue;
     }
-    ESP_ERROR_CHECK(esp_wifi_80211_tx((wifi_interface_t)WIFI_IF_STA, buf, len, false));
+    ESP_ERROR_CHECK(esp_wifi_80211_tx((wifi_interface_t)WIFI_IF_STA, buf, len, false)); // Transmit beacon message
 
-    printf("hello world\n");
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    vTaskDelay(50 / portTICK_PERIOD_MS);
   }
 }
