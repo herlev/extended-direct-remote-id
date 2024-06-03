@@ -9,8 +9,11 @@ static bool c_array_equal(void *a, void *b, size_t len) {
   return memcmp(a, b, len) == 0;
 }
 
-bool is_newer(uint8_t saved_count, uint8_t count) {
-  return count > saved_count || count < saved_count - 128;
+static bool is_newer(uint8_t saved_count, uint8_t count) {
+  // distance from saved count to count going in the clockwise
+  // direction around a number circle where 0 == 256
+  uint8_t cw_dist = count - saved_count;
+  return 0 < cw_dist && cw_dist <= 128;
 }
 
 void callback(void *buffer, wifi_promiscuous_pkt_type_t type);

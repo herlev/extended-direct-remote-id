@@ -50,7 +50,7 @@ void inject_adsb(ODID_UAS_Data uas_data, uart_port_t uart_num, char *own_UAS_ID)
     auto emitter_type = ADSB_EMITTER_TYPE_UAV;
     auto horizontal_veocity = (uint16_t)(uas_data.Location.SpeedHorizontal * 100);
     auto vertical_veocity = (int16_t)(uas_data.Location.SpeedVertical * 100);
-    uint32_t icao = FNV1_a_hash((uint8_t *)callsign, strlen(callsign));
+    uint32_t icao = FNV1_a_hash((uint8_t *)uas_data.BasicID[0].UASID, ODID_ID_SIZE);
     // if (uas_data.BasicID->UAType == ODID_UATYPE_HELICOPTER_OR_MULTIROTOR) {
     //   emitter_type = ADSB_EMITTER_TYPE_UAV;
     // }

@@ -23,6 +23,7 @@ static uint8_t send_buffer_self[1000];
 void print_mac(uint8_t *mac) {
   printf("%02X:%02X:%02X:%02X:%02X:%02X \n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 }
+
 void print_scan_result(ScanResult &scan_result) {
   auto &odid_msg = scan_result.odid_msg;
   auto &frame = scan_result.management_frame;
