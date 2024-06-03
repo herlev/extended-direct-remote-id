@@ -1,11 +1,10 @@
 #include "esp_err.h"
-#include "esp_mac.h"
-#include "esp_wifi.h"
 #include "esp_wifi_types.h"
-#include "freertos/FreeRTOS.h"
 #include "opendroneid.h"
-#include "utils.hpp"
+#include "esp_wifi.h"
+#include "nvs_flash.h"
 #include <stdio.h>
+
 ODID_UAS_Data get_odid_data() {
   ODID_UAS_Data data;
   odid_initUasData(&data);
@@ -32,8 +31,6 @@ extern "C" void app_main(void) {
   }
   ESP_ERROR_CHECK(ret);
 
-  ESP_ERROR_CHECK(esp_netif_init());
-  ESP_ERROR_CHECK(esp_event_loop_create_default());
 
   wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
   ESP_ERROR_CHECK(esp_wifi_init(&cfg));
@@ -43,7 +40,6 @@ extern "C" void app_main(void) {
   ESP_ERROR_CHECK(esp_wifi_set_channel(6, WIFI_SECOND_CHAN_NONE));
 
   uint8_t mac[] = {0x02, 0x45, 0x6d, 0xff, 0xdd, 0xdc};
-  //esp_read_mac(mac, ESP_MAC_WIFI_STA); // Read the ESP32-C3's mac address.
   uint8_t count = 0;
   while (true) {
     auto data = get_odid_data(); // Initialize ODID data
